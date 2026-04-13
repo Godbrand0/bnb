@@ -31,6 +31,9 @@ Thumbs.db
 # IDE / tools
 .qodo/
 
+# Foundry dependencies
+argen/lib/
+
 # Foundry broadcast dry-runs
 broadcast/**/dry-run/
 broadcast/*/31337/

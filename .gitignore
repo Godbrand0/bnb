@@ -1,0 +1,41 @@
+# Dependencies
+node_modules/
+
+# Environment files
+.env
+.env.*
+
+# Build outputs
+dist/
+build/
+out/
+cache/
+
+# Next.js
+.next/
+next-env.d.ts
+
+# TypeScript
+*.tsbuildinfo
+
+# Package manager
+.pnpm-debug.log*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE / tools
+.qodo/
+
+# Foundry broadcast dry-runs
+broadcast/**/dry-run/
+broadcast/*/31337/
+
+# Misc
+*.pem
+coverage/
+.vercel

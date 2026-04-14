@@ -1,0 +1,5 @@
+export const VAULT_ADDRESS = "0x0000000000000000000000000000000000000000"; // Replace with real deployed address
+export const USDC_ADDRESS = "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d"; // Mainnet USDC (BNB Chain)
+export const BRGN_TOKEN_ADDRESS = "0x0000000000000000000000000000000000000000"; // Replace with real deployed address
+export const EIP8004_NFT_ADDRESS = "0x0000000000000000000000000000000000000000"; // Replace with real deployed address
+export const DEX_ROUTER_ADDRESS = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // PancakeSwap V2 Router

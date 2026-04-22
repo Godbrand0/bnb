@@ -6,15 +6,17 @@ import { formatUnits } from 'viem';
 import { VAULT_ABI } from './constants/abi';
 import { VAULT_ADDRESS } from './constants/addresses';
 
-// Dynamic Four.Meme token list 
-const INITIAL_TOKENS = [
-  { symbol: 'FOUR',   name: 'Four Token',   liq: '$12.4M', ltv: '70%', status: 'PUBLISH' },
-  { symbol: 'MEME',   name: 'Meme World',   liq: '$4.8M',  ltv: '65%', status: 'TRADING' },
-  { symbol: 'BRGN',   name: 'Brgent',       liq: '$2.1M',  ltv: '60%', status: 'PUBLISH' },
-  { symbol: 'DOG',    name: 'Doge Agent',   liq: '$890K',  ltv: '60%', status: 'TRADING' },
-];
+import { FOUR_MEME_TOKENS } from './constants/tokens';
 
 export default function Dashboard() {
+  const [search, setSearch] = useState('');
+  const { address } = useAccount();
+
+  const filteredTokens = FOUR_MEME_TOKENS.filter(t => 
+    t.symbol.toLowerCase().includes(search.toLowerCase()) || 
+    t.name.toLowerCase().includes(search.toLowerCase())
+  );
+
   const { data: totalReserves } = useReadContract({
     address: VAULT_ADDRESS, abi: VAULT_ABI, functionName: 'totalReservesUsdc',
   });
@@ -43,33 +45,27 @@ export default function Dashboard() {
   ];
 
   return (
-    <div style={{ padding: '32px 36px', maxWidth: 1100, width: '100%' }}>
+    <div className="p-8 max-w-[1100px] w-full">
 
       {/* Page header */}
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#EAECEF' }}>Dashboard</h1>
-        <p style={{ fontSize: 13, color: '#848E9C', marginTop: 4 }}>
+      <div className="mb-7">
+        <h1 className="text-[22px] font-bold text-text">Dashboard</h1>
+        <p className="text-[13px] text-muted mt-1">
           Protocol overview — BNB Chain Testnet
         </p>
       </div>
 
       {/* Protocol health bar */}
-      <div
-        style={{
-          display: 'flex', alignItems: 'center', gap: 10,
-          padding: '10px 16px', marginBottom: 28,
-          background: '#1E2329', border: '1px solid rgba(14,203,129,0.2)', borderRadius: 8,
-        }}
-      >
-        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#0ECB81', flexShrink: 0 }} className="pulse-dot" />
-        <span style={{ fontSize: 12, fontWeight: 600, color: '#0ECB81' }}>Protocol Operational</span>
-        <span style={{ fontSize: 12, color: '#474D57', marginLeft: 8 }}>·</span>
-        <span style={{ fontSize: 12, color: '#848E9C' }}>All systems healthy · Last checked just now</span>
-        <span style={{ marginLeft: 'auto', fontSize: 11, color: '#474D57' }}>BNB Chain Testnet</span>
+      <div className="flex items-center gap-2.5 p-[10px_16px] mb-7 bg-surface border border-green/20 rounded-lg">
+        <span className="pulse-dot w-2 h-2 rounded-full bg-green shrink-0" />
+        <span className="text-[12px] font-semibold text-green">Protocol Operational</span>
+        <span className="text-[12px] text-dim ml-2">·</span>
+        <span className="text-[12px] text-muted">All systems healthy · Last checked just now</span>
+        <span className="ml-auto text-[11px] text-dim uppercase font-semibold">BNB Chain Testnet</span>
       </div>
 
       {/* Stats grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 32 }}>
+      <div className="grid grid-cols-3 gap-4 mb-8">
         {stats.map((s, i) => (
           <div key={i} className="stat-card">
             <div className="stat-label">{s.label}</div>
@@ -80,13 +76,30 @@ export default function Dashboard() {
       </div>
 
       {/* Supported collateral */}
-      <div className="card" style={{ marginBottom: 32 }}>
-        <div style={{ padding: '18px 20px', borderBottom: '1px solid #2B3139', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+      <div className="card mb-8">
+        <div className="p-[18px_20px] border-b border-border flex items-center justify-between">
           <div>
             <p className="section-title">Supported Collateral</p>
             <p className="section-sub">Four.Meme tokens accepted as collateral on BNB Chain</p>
           </div>
-          <span className="badge badge-yellow">Four.Meme</span>
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <input 
+                type="text" 
+                placeholder="Search token..." 
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="bg-surface-alt border border-border rounded-md p-[6px_12px_6px_32px] text-text text-[13px] w-[180px] outline-none transition-all focus:border-yellow"
+              />
+              <svg 
+                className="absolute left-2.5 top-1/2 -translate-y-1/2"
+                width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="var(--color-muted)" strokeWidth="2"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+            <span className="badge badge-yellow">Four.Meme</span>
+          </div>
         </div>
         <table className="tbl">
           <thead>
@@ -99,85 +112,77 @@ export default function Dashboard() {
             </tr>
           </thead>
           <tbody>
-            {INITIAL_TOKENS.map((c) => (
+            {filteredTokens.length > 0 ? filteredTokens.map((c) => (
               <tr key={c.symbol}>
                 <td>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                    <div
-                      style={{
-                        width: 32, height: 32, borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #F0B90B, #FFD700)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 10, fontWeight: 800, color: '#000',
-                      }}
-                    >
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-full bg-linear-to-br from-yellow to-yellow/60 flex items-center justify-center text-[10px] font-extrabold text-bg">
                       {c.symbol.slice(0, 2)}
                     </div>
                     <div>
-                      <p style={{ fontWeight: 600, fontSize: 13, color: '#EAECEF' }}>{c.symbol}</p>
-                      <p style={{ fontSize: 11, color: '#848E9C' }}>{c.name}</p>
+                      <p className="font-semibold text-[13px] text-text">{c.symbol}</p>
+                      <p className="text-[11px] text-muted">{c.name}</p>
                     </div>
                   </div>
                 </td>
-                <td className="mono" style={{ fontSize: 13 }}>{c.liq}</td>
-                <td className="mono" style={{ fontSize: 13 }}>{c.ltv}</td>
+                <td className="mono text-[13px]">{c.liq}</td>
+                <td className="mono text-[13px]">{c.ltv}</td>
                 <td>
                   <span className={`badge ${c.status === 'PUBLISH' ? 'badge-green' : 'badge-yellow'}`}>
                     {c.status}
                   </span>
                 </td>
-                <td style={{ fontSize: 11, color: '#848E9C' }}>
+                <td className="text-[11px] text-muted">
                   Partial (Exact Out)
                 </td>
               </tr>
-            ))}
+            )) : (
+              <tr>
+                <td colSpan={5} className="text-center p-8 text-muted text-[13px]">
+                  No tokens found matching "{search}"
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
       {/* Protocol info row */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-        <div className="card" style={{ padding: '20px 22px' }}>
-          <p className="section-title" style={{ marginBottom: 12 }}>How It Works</p>
+      <div className="grid grid-cols-2 gap-4">
+        <div className="card p-[20px_22px]">
+          <p className="section-title mb-3">How It Works</p>
           {[
             ['Lend',    'Deposit USDC to earn fixed APR + BRGN emissions.'],
             ['Borrow',  'Use Four.Meme meme tokens as collateral to borrow USDC.'],
             ['Guard',   'Stake 1M BRGN to run an autonomous liquidation agent.'],
           ].map(([title, desc]) => (
-            <div key={title} style={{ display: 'flex', gap: 12, marginBottom: 12 }}>
-              <span
-                style={{
-                  width: 22, height: 22, borderRadius: 4,
-                  background: 'rgba(240,185,11,0.1)', border: '1px solid rgba(240,185,11,0.2)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 10, fontWeight: 700, color: '#F0B90B', flexShrink: 0,
-                }}
-              >
+            <div key={title} className="flex gap-3 mb-3">
+              <span className="w-[22px] h-[22px] rounded bg-yellow/10 border border-yellow/20 flex items-center justify-center text-[10px] font-bold text-yellow shrink-0">
                 {title[0]}
               </span>
               <div>
-                <p style={{ fontSize: 12, fontWeight: 600, color: '#EAECEF' }}>{title}</p>
-                <p style={{ fontSize: 12, color: '#848E9C' }}>{desc}</p>
+                <p className="text-[12px] font-semibold text-text">{title}</p>
+                <p className="text-[12px] text-muted">{desc}</p>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="card" style={{ padding: '20px 22px' }}>
-          <p className="section-title" style={{ marginBottom: 12 }}>Risk Parameters</p>
+        <div className="card p-[20px_22px]">
+          <p className="section-title mb-3">Risk Parameters</p>
           {[
-            ['Max LTV',                '60%',       '#F0B90B'],
-            ['Liquidation Threshold',  '65%',       '#F6465D'],
-            ['Borrow Interest Rate',   apr,         '#EAECEF'],
-            ['Agent Reward',           reward,      '#0ECB81'],
-            ['Guardian Stake',         '1,000,000 BRGN', '#EAECEF'],
-          ].map(([label, value, color]) => (
+            ['Max LTV',                '60%',       'yellow'],
+            ['Liquidation Threshold',  '65%',       'red'],
+            ['Borrow Interest Rate',   apr,         'text'],
+            ['Agent Reward',           reward,      'green'],
+            ['Guardian Stake',         '1,000,000 BRGN', 'text'],
+          ].map(([label, value, colorType]) => (
             <div
               key={label as string}
-              style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}
+              className="flex justify-between items-center mb-2.5"
             >
-              <span style={{ fontSize: 12, color: '#848E9C' }}>{label}</span>
-              <span className="mono" style={{ fontSize: 12, fontWeight: 600, color: color as string }}>{value}</span>
+              <span className="text-[12px] text-muted">{label}</span>
+              <span className={`mono text-[12px] font-semibold text-${colorType}`}>{value}</span>
             </div>
           ))}
         </div>

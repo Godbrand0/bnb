@@ -35,54 +35,52 @@ export default function AgentPage() {
   const brgnBal    = brgnBalance    ? Number(formatUnits(brgnBalance  as bigint, 18)).toLocaleString() : '0';
 
   return (
-    <div style={{ padding: '32px 36px', maxWidth: 1100, width: '100%' }}>
+    <div className="p-8 max-w-[1100px] w-full">
 
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#EAECEF' }}>Agent</h1>
-        <p style={{ fontSize: 13, color: '#848E9C', marginTop: 4 }}>
+      <div className="mb-7">
+        <h1 className="text-[22px] font-bold text-text">Agent</h1>
+        <p className="text-[13px] text-muted mt-1">
           Operate an autonomous Guardian liquidation agent on BNB Chain
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '420px 1fr', gap: 24 }}>
+      <div className="grid grid-cols-[420px_1fr] gap-6">
 
         {/* ── Registration panel ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="flex flex-col gap-4">
 
           {/* Requirements card */}
-          <div className="card" style={{ padding: '22px 24px' }}>
-            <p className="section-title" style={{ marginBottom: 16 }}>Guardian Requirements</p>
+          <div className="card p-[22px_24px]">
+            <p className="section-title mb-4">Guardian Requirements</p>
             {[
               { label: 'BRGN Required',         value: `${stakeReq} BRGN`, ok: false },
               { label: 'Your BRGN Balance',      value: `${brgnBal} BRGN`,  ok: false },
               { label: 'EIP-8004 NFT',           value: 'Required',          ok: false },
               { label: 'Registration Status',    value: 'Unregistered',      ok: false },
             ].map(({ label, value, ok }) => (
-              <div key={label} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div key={label} className="flex justify-between items-center mb-3 last:mb-0">
+                <div className="flex items-center gap-2">
                   <span
-                    style={{
-                      width: 16, height: 16, borderRadius: '50%',
-                      border: `2px solid ${ok ? '#0ECB81' : '#474D57'}`,
-                      background: ok ? 'rgba(14,203,129,0.1)' : 'transparent',
-                      flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    }}
+                    className={`
+                      w-4 h-4 rounded-full border-2 flex shrink-0 items-center justify-center
+                      ${ok ? 'border-green bg-green/10' : 'border-border bg-transparent'}
+                    `}
                   >
-                    {ok && <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#0ECB81' }} />}
+                    {ok && <span className="w-1.5 h-1.5 rounded-full bg-green" />}
                   </span>
-                  <span style={{ fontSize: 12, color: '#848E9C' }}>{label}</span>
+                  <span className="text-[12px] text-muted">{label}</span>
                 </div>
-                <span className="mono" style={{ fontSize: 12, fontWeight: 600, color: ok ? '#0ECB81' : '#EAECEF' }}>{value}</span>
+                <span className={`mono text-[12px] font-semibold ${ok ? 'text-green' : 'text-text'}`}>{value}</span>
               </div>
             ))}
           </div>
 
           {/* Stake + Register */}
-          <div className="card" style={{ padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+          <div className="card p-[22px_24px] flex flex-col gap-4">
             <p className="section-title">Stake & Register</p>
 
             <div className="info-box info-yellow">
-              <span style={{ fontWeight: 600, color: '#F0B90B' }}>EIP-8004 Standard</span> — Guardian agents must hold a verified EIP-8004 NFT and stake 1,000,000 BRGN tokens to participate in the liquidation pool.
+              <span className="font-semibold text-yellow">EIP-8004 Standard</span> — Guardian agents must hold a verified EIP-8004 NFT and stake 1,000,000 BRGN tokens to participate in the liquidation pool.
             </div>
 
             {[
@@ -91,29 +89,22 @@ export default function AgentPage() {
               { label: 'Step 3', desc: 'Stake BRGN and call the registration contract.' },
               { label: 'Step 4', desc: 'Deploy the open-source Guardian bot to earn liquidation rewards.' },
             ].map(({ label, desc }) => (
-              <div key={label} style={{ display: 'flex', gap: 12 }}>
-                <span
-                  style={{
-                    fontSize: 10, fontWeight: 700, color: '#F0B90B',
-                    background: 'rgba(240,185,11,0.08)', border: '1px solid rgba(240,185,11,0.2)',
-                    borderRadius: 4, padding: '3px 7px', flexShrink: 0, height: 'fit-content',
-                  }}
-                >
+              <div key={label} className="flex gap-3">
+                <span className="text-[10px] font-bold text-yellow bg-yellow/10 border border-yellow/20 rounded-[4px] p-[3px_7px] shrink-0 h-fit">
                   {label}
                 </span>
-                <p style={{ fontSize: 12, color: '#848E9C', lineHeight: 1.5 }}>{desc}</p>
+                <p className="text-[12px] text-muted leading-relaxed">{desc}</p>
               </div>
             ))}
 
             {isSuccess && (
               <div className="info-box info-green">
-                <span style={{ color: '#0ECB81', fontWeight: 600 }}>Transaction confirmed!</span>
+                <span className="text-green font-semibold">Transaction confirmed!</span>
               </div>
             )}
 
             <button
-              className="btn btn-yellow"
-              style={{ width: '100%', padding: '12px' }}
+              className="btn btn-yellow w-full p-3"
               disabled={isBusy || !isConnected}
             >
               {isBusy ? <><span className="spinner" />Processing…</> : 'Stake & Join Guardian Pool'}
@@ -123,10 +114,10 @@ export default function AgentPage() {
         </div>
 
         {/* ── Right panel ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="flex flex-col gap-4">
 
           {/* Agent reward stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12 }}>
+          <div className="grid grid-cols-3 gap-3">
             {[
               { label: 'Reward Per Liq.',  value: rewardPct,  sub: 'Of collateral sold' },
               { label: 'Active Guardians', value: '2',        sub: 'On network'         },
@@ -134,7 +125,7 @@ export default function AgentPage() {
             ].map(s => (
               <div key={s.label} className="stat-card">
                 <div className="stat-label">{s.label}</div>
-                <div className="stat-value" style={{ fontSize: 18 }}>{s.value}</div>
+                <div className="stat-value text-[18px]">{s.value}</div>
                 <div className="stat-sub">{s.sub}</div>
               </div>
             ))}
@@ -142,7 +133,7 @@ export default function AgentPage() {
 
           {/* Active agents table */}
           <div className="card">
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid #2B3139' }}>
+            <div className="p-[16px_20px] border-b border-border">
               <p className="section-title">Active Guardians</p>
               <p className="section-sub">All registered Guardian agents on this deployment</p>
             </div>
@@ -160,8 +151,8 @@ export default function AgentPage() {
               <tbody>
                 {MOCK_AGENTS.map((a) => (
                   <tr key={a.id}>
-                    <td style={{ fontWeight: 600, color: '#F0B90B' }}>{a.id}</td>
-                    <td className="mono" style={{ color: '#848E9C' }}>{a.address}</td>
+                    <td className="font-semibold text-yellow">{a.id}</td>
+                    <td className="mono text-muted">{a.address}</td>
                     <td>
                       <span className={`badge ${a.status === 'Active' ? 'badge-green' : 'badge-muted'}`}>
                         {a.status}
@@ -169,7 +160,7 @@ export default function AgentPage() {
                     </td>
                     <td className="mono">{a.liquidations}</td>
                     <td className="mono">${a.earned}</td>
-                    <td className="mono" style={{ color: a.uptime > '90%' ? '#0ECB81' : '#F6465D' }}>{a.uptime}</td>
+                    <td className={`mono ${a.uptime > '90%' ? 'text-green' : 'text-red'}`}>{a.uptime}</td>
                   </tr>
                 ))}
               </tbody>
@@ -177,26 +168,20 @@ export default function AgentPage() {
           </div>
 
           {/* How liquidation works */}
-          <div className="card" style={{ padding: '20px 22px' }}>
-            <p className="section-title" style={{ marginBottom: 14 }}>How Liquidation Works</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <div className="card p-[20px_22px]">
+            <p className="section-title mb-3.5">How Liquidation Works</p>
+            <div className="flex flex-col gap-3">
               {[
                 ['Monitor', 'Guardian agents continuously monitor all borrower positions on-chain.'],
                 ['Detect',  'When a position\'s LTV exceeds the liquidation threshold (65%), the agent triggers.'],
                 ['Execute', 'The collateral token is swapped for USDC via PancakeSwap V2 to repay the debt.'],
                 ['Reward',  'The agent receives a percentage of the collateral as a liquidation reward.'],
               ].map(([title, desc]) => (
-                <div key={title} style={{ display: 'flex', gap: 12 }}>
-                  <span
-                    style={{
-                      fontSize: 9, fontWeight: 700, color: '#848E9C',
-                      background: '#2B3139', border: '1px solid #474D57',
-                      borderRadius: 4, padding: '3px 7px', flexShrink: 0, height: 'fit-content',
-                    }}
-                  >
+                <div key={title} className="flex gap-3">
+                  <span className="text-[9px] font-bold text-muted bg-border border border-dim rounded-[4px] p-[3px_7px] shrink-0 h-fit uppercase tracking-wider">
                     {title}
                   </span>
-                  <p style={{ fontSize: 12, color: '#848E9C', lineHeight: 1.5 }}>{desc}</p>
+                  <p className="text-[12px] text-muted leading-relaxed">{desc}</p>
                 </div>
               ))}
             </div>

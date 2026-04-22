@@ -1,23 +1,45 @@
 "use client";
 
-import { useState } from 'react';
-import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { useState, useEffect } from 'react';
+import { useAccount, useReadContract, useReadContracts, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { formatUnits, parseUnits, erc20Abi } from 'viem';
 import { VAULT_ABI } from '../constants/abi';
 import { VAULT_ADDRESS, USDC_ADDRESS } from '../constants/addresses';
-
-const MEME_TOKENS = [
-  { symbol: 'PEPE',  name: 'Pepe',      address: '0x6982508145454Ce325dDbE47a25d4ec3d2311933', maxLtv: 60, rate: 5  },
-  { symbol: 'SHIB',  name: 'Shiba Inu', address: '0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE', maxLtv: 55, rate: 5  },
-  { symbol: 'DOGE',  name: 'Dogecoin',  address: '0xbA2aE424d960c26247Dd6c32edC70B295c744C43', maxLtv: 60, rate: 5  },
-  { symbol: 'FLOKI', name: 'Floki',     address: '0xfb5B838b6cfEEdC2873aB27866079AC55363D37A', maxLtv: 50, rate: 6  },
-] as const;
+import { FOUR_MEME_TOKENS, Token } from '../constants/tokens';
 
 export default function BorrowPage() {
   const { address, isConnected } = useAccount();
-  const [selectedToken, setSelectedToken] = useState<typeof MEME_TOKENS[number]>(MEME_TOKENS[0]);
+  const [selectedToken, setSelectedToken] = useState<Token>(FOUR_MEME_TOKENS[0]);
+  const [search, setSearch] = useState('');
   const [borrowAmount, setAmount] = useState('');
   const [targetLtv, setTargetLtv] = useState(50);
+
+  // Auto-Scan: Fetch balances for all Four.Meme tokens
+  const { data: balancesData } = useReadContracts({
+    contracts: FOUR_MEME_TOKENS.map(t => ({
+      address: t.address,
+      abi: erc20Abi,
+      functionName: 'balanceOf',
+      args: address ? [address] : undefined,
+    })),
+    query: { enabled: !!address && isConnected }
+  });
+
+  const tokensWithBalances = FOUR_MEME_TOKENS.map((t, i) => ({
+    ...t,
+    balance: balancesData?.[i]?.result as bigint || 0n
+  }));
+
+  const filteredAndSorted = tokensWithBalances
+    .filter(t => t.symbol.toLowerCase().includes(search.toLowerCase()) || t.name.toLowerCase().includes(search.toLowerCase()))
+    .sort((a, b) => (b.balance > 0n ? 1 : 0) - (a.balance > 0n ? 1 : 0));
+
+  useEffect(() => {
+    // If our selected token is filtered out, pick the first available one
+    if (!filteredAndSorted.find(t => t.symbol === selectedToken.symbol) && filteredAndSorted.length > 0) {
+      setSelectedToken(filteredAndSorted[0]);
+    }
+  }, [search, filteredAndSorted, selectedToken.symbol]);
 
   const { data: usdcBalance } = useReadContract({
     address: USDC_ADDRESS, abi: erc20Abi, functionName: 'balanceOf',
@@ -58,63 +80,88 @@ export default function BorrowPage() {
   };
 
   return (
-    <div style={{ padding: '32px 36px', maxWidth: 1100, width: '100%' }}>
+    <div className="p-8 max-w-[1100px] w-full">
 
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#EAECEF' }}>Borrow</h1>
-        <p style={{ fontSize: 13, color: '#848E9C', marginTop: 4 }}>
+      <div className="mb-7">
+        <h1 className="text-[22px] font-bold text-text">Borrow</h1>
+        <p className="text-[13px] text-muted mt-1">
           Use Four.Meme tokens as collateral to borrow USDC
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '460px 1fr', gap: 24 }}>
+      <div className="grid grid-cols-[460px_1fr] gap-6">
 
         {/* ── Borrow form ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="flex flex-col gap-4">
 
-          <div className="card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+          <div className="card p-6 flex flex-col gap-5">
 
             {/* Collateral selector */}
             <div>
-              <span className="label" style={{ display: 'block', marginBottom: 10 }}>Select Collateral</span>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                {MEME_TOKENS.map((token) => {
+              <div className="flex justify-between items-center mb-2.5">
+                <span className="label">Select Collateral</span>
+                <div className="relative">
+                  <input 
+                    type="text" 
+                    placeholder="Search..." 
+                    value={search}
+                    onChange={e => setSearch(e.target.value)}
+                    className="bg-surface-alt border border-border rounded p-[4px_8px_4px_24px] text-text text-[11px] w-[120px] outline-none"
+                  />
+                  <svg 
+                    className="absolute left-2 top-1/2 -translate-y-1/2"
+                    width="10" height="10" fill="none" viewBox="0 0 24 24" stroke="var(--color-dim)" strokeWidth="2"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+              </div>
+              <div className="flex flex-col gap-1.5 max-h-[220px] overflow-y-auto pr-1 custom-scroll">
+                {filteredAndSorted.map((token) => {
                   const active = selectedToken.symbol === token.symbol;
+                  const hasBalance = token.balance > 0n;
                   return (
                     <button
                       key={token.symbol}
                       onClick={() => setSelectedToken(token)}
-                      style={{
-                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                        padding: '10px 14px', borderRadius: 6, cursor: 'pointer', border: 'none',
-                        background: active ? 'rgba(240,185,11,0.08)' : '#161A1E',
-                        borderLeft: `3px solid ${active ? '#F0B90B' : 'transparent'}`,
-                        outline: active ? '1px solid rgba(240,185,11,0.2)' : '1px solid #2B3139',
-                        transition: 'all 0.15s',
-                      }}
+                      className={`
+                        flex items-center justify-between p-[10px_14px] rounded-lg cursor-pointer border-none transition-all duration-150 w-full text-left
+                        ${active 
+                          ? 'bg-yellow/10 border-l-[3px] border-yellow outline outline-1 outline-yellow/20' 
+                          : 'bg-surface-alt border-l-[3px] border-transparent outline outline-1 outline-border'
+                        }
+                      `}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                      <div className="flex items-center gap-2.5">
                         <div
-                          style={{
-                            width: 30, height: 30, borderRadius: '50%', background: '#2B3139',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center',
-                            fontSize: 10, fontWeight: 800, color: active ? '#F0B90B' : '#848E9C',
-                          }}
+                          className={`
+                            w-[30px] h-[30px] rounded-full flex items-center justify-center text-[10px] font-extrabold
+                            ${hasBalance 
+                              ? 'bg-linear-to-br from-yellow to-yellow/60 text-bg' 
+                              : (active ? 'bg-border text-yellow' : 'bg-border text-muted')
+                            }
+                          `}
                         >
                           {token.symbol.slice(0, 2)}
                         </div>
-                        <div style={{ textAlign: 'left' }}>
-                          <p style={{ fontSize: 13, fontWeight: 600, color: active ? '#EAECEF' : '#848E9C' }}>{token.symbol}</p>
-                          <p style={{ fontSize: 11, color: '#474D57' }}>{token.name}</p>
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <p className={`text-[13px] font-semibold ${active ? 'text-text' : 'text-muted'}`}>{token.symbol}</p>
+                            {hasBalance && <span className="text-[9px] bg-green/15 text-green p-[1px_4px] rounded-[3px] font-bold">WALLET</span>}
+                          </div>
+                          <p className="text-[11px] text-dim">{token.name}</p>
                         </div>
                       </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <p style={{ fontSize: 11, color: '#848E9C' }}>Max LTV</p>
-                        <p className="mono" style={{ fontSize: 12, fontWeight: 600, color: active ? '#F0B90B' : '#848E9C' }}>{token.maxLtv}%</p>
+                      <div className="text-right">
+                        <p className="text-[11px] text-muted">Max LTV</p>
+                        <p className={`mono text-[12px] font-semibold ${active ? 'text-yellow' : 'text-muted'}`}>{token.maxLtv}%</p>
                       </div>
                     </button>
                   );
                 })}
+                {filteredAndSorted.length === 0 && (
+                  <p className="text-center p-5 text-[12px] text-dim">No tokens found</p>
+                )}
               </div>
             </div>
 
@@ -122,83 +169,81 @@ export default function BorrowPage() {
 
             {/* Borrow amount */}
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+              <div className="flex justify-between mb-2">
                 <span className="label">Borrow Amount</span>
-                <span style={{ fontSize: 12, color: '#848E9C' }}>
-                  Available: <span className="mono" style={{ color: '#EAECEF' }}>{liquidity}</span>
+                <span className="text-[12px] text-muted">
+                  Available: <span className="mono text-text">{liquidity}</span>
                 </span>
               </div>
-              <div style={{ position: 'relative' }}>
+              <div className="relative">
                 <input type="number" className="input" placeholder="0.00" value={borrowAmount} onChange={e => setAmount(e.target.value)} />
-                <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 13, fontWeight: 600, color: '#848E9C' }}>USDC</span>
+                <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[13px] font-semibold text-muted">USDC</span>
               </div>
             </div>
 
             {/* LTV slider */}
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 10 }}>
+              <div className="flex justify-between mb-2.5">
                 <span className="label">Target LTV</span>
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
-                  <span className="mono" style={{ fontSize: 18, fontWeight: 700, color: ltvColor }}>{targetLtv}%</span>
-                  <span style={{ fontSize: 11, color: '#848E9C' }}>/ {selectedToken.maxLtv}% max</span>
+                <div className="flex items-baseline gap-1">
+                  <span className={`mono text-[18px] font-bold text-${ltvClass}`}>{targetLtv}%</span>
+                  <span className="text-[11px] text-muted">/ {selectedToken.maxLtv}% max</span>
                 </div>
               </div>
               <input
                 type="range" min={10} max={selectedToken.maxLtv} value={targetLtv}
                 onChange={e => setTargetLtv(Number(e.target.value))}
-                style={{ width: '100%', accentColor: ltvColor, cursor: 'pointer' }}
+                className={`w-full accent-${ltvClass} cursor-pointer`}
               />
-              <div style={{ position: 'relative', marginTop: 6 }}>
+              <div className="relative mt-1.5">
                 <div className="ltv-track">
                   <div className={`ltv-fill ${ltvClass}`} style={{ width: `${(targetLtv / selectedToken.maxLtv) * 100}%` }} />
                   {/* liquidation marker */}
-                  <div style={{ position: 'absolute', right: 0, top: -3, width: 2, height: 11, background: '#F6465D', borderRadius: 1 }} />
+                  <div className="absolute right-0 -top-[3px] w-[2px] h-[11px] bg-red rounded-[1px]" />
                 </div>
               </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: 6 }}>
-                <span style={{ fontSize: 10, color: '#474D57' }}>Conservative</span>
-                <span style={{ fontSize: 10, color: '#F6465D' }}>Liq. at {selectedToken.maxLtv + 5}%</span>
+              <div className="flex justify-between mt-1.5">
+                <span className="text-[10px] text-dim font-medium uppercase tracking-tight">Conservative</span>
+                <span className="text-[10px] text-red font-medium uppercase tracking-tight">Liq. at {selectedToken.maxLtv + 5}%</span>
               </div>
             </div>
 
             {/* Summary row */}
-            <div style={{ background: '#161A1E', border: '1px solid #2B3139', borderRadius: 6, padding: '12px 14px', display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <div className="bg-surface-alt border border-border rounded-lg p-3 flex flex-col gap-2">
               {[
-                ['Borrow Rate', apr, '#EAECEF'],
-                ['Max LTV',     `${selectedToken.maxLtv}%`, '#F0B90B'],
-                ['Repay Mode',  'USDC or Collateral', '#848E9C'],
+                ['Borrow Rate', apr, 'text'],
+                ['Max LTV',     `${selectedToken.maxLtv}%`, 'yellow'],
+                ['Repay Mode',  'USDC or Collateral', 'muted'],
               ].map(([k, v, c]) => (
-                <div key={k as string} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span style={{ fontSize: 12, color: '#848E9C' }}>{k}</span>
-                  <span className="mono" style={{ fontSize: 12, fontWeight: 600, color: c as string }}>{v}</span>
+                <div key={k as string} className="flex justify-between">
+                  <span className="text-[12px] text-muted">{k}</span>
+                  <span className={`mono text-[12px] font-semibold text-${c}`}>{v}</span>
                 </div>
               ))}
             </div>
 
             {targetLtv >= 55 && (
               <div className="info-box info-red">
-                <span style={{ color: '#F6465D', fontWeight: 600 }}>High LTV Warning</span> — Your position is close to the liquidation threshold. Guardian agents will liquidate if LTV exceeds {selectedToken.maxLtv + 5}%.
+                <span className="text-red font-semibold">High LTV Warning</span> — Your position is close to the liquidation threshold. Guardian agents will liquidate if LTV exceeds {selectedToken.maxLtv + 5}%.
               </div>
             )}
 
             {isSuccess && (
               <div className="info-box info-green">
-                <span style={{ color: '#0ECB81', fontWeight: 600 }}>Transaction confirmed!</span>
+                <span className="text-green font-semibold">Transaction confirmed!</span>
               </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
+            <div className="grid grid-cols-2 gap-2.5">
               <button
-                className="btn btn-yellow"
-                style={{ padding: '13px', fontSize: 14 }}
+                className="btn btn-yellow p-[13px] text-sm"
                 disabled={isBusy || !isConnected || !borrowAmount}
                 onClick={handleBorrow}
               >
                 {isBusy ? <><span className="spinner" />Processing…</> : 'Borrow USDC'}
               </button>
               <button
-                className="btn btn-ghost"
-                style={{ padding: '13px', fontSize: 14 }}
+                className="btn btn-ghost p-[13px] text-sm"
                 disabled={isBusy || !isConnected || !borrowAmount}
                 onClick={handleRepay}
               >
@@ -210,17 +255,17 @@ export default function BorrowPage() {
         </div>
 
         {/* ── Right: info + active positions ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="flex flex-col gap-4">
 
           {/* Market stats */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
+          <div className="grid grid-cols-2 gap-3">
             {[
               { label: 'Available Liquidity', value: liquidity, sub: 'Ready to borrow' },
               { label: 'Borrow Rate',         value: apr,       sub: 'Fixed APR'       },
             ].map(s => (
               <div key={s.label} className="stat-card">
                 <div className="stat-label">{s.label}</div>
-                <div className="stat-value" style={{ fontSize: 20 }}>{s.value}</div>
+                <div className="stat-value text-[20px]">{s.value}</div>
                 <div className="stat-sub">{s.sub}</div>
               </div>
             ))}
@@ -228,7 +273,7 @@ export default function BorrowPage() {
 
           {/* Active positions placeholder */}
           <div className="card">
-            <div style={{ padding: '16px 20px', borderBottom: '1px solid #2B3139', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div className="p-4 px-5 border-b border-border flex justify-between items-center">
               <div>
                 <p className="section-title">Your Positions</p>
                 <p className="section-sub">Open borrow positions</p>
@@ -237,32 +282,32 @@ export default function BorrowPage() {
             {isConnected ? (
               <div className="empty-state">
                 <div className="icon-ring">
-                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#848E9C" strokeWidth={1.5}>
+                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                   </svg>
                 </div>
-                <p style={{ fontSize: 13, fontWeight: 600, color: '#EAECEF' }}>No Active Positions</p>
-                <p style={{ fontSize: 12, color: '#848E9C' }}>Open a position using the form on the left.</p>
+                <p className="text-[13px] font-semibold text-text">No Active Positions</p>
+                <p className="text-[12px] text-muted">Open a position using the form on the left.</p>
               </div>
             ) : (
               <div className="empty-state">
                 <div className="icon-ring">
-                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#848E9C" strokeWidth={1.5}>
+                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                   </svg>
                 </div>
-                <p style={{ fontSize: 13, fontWeight: 600, color: '#EAECEF' }}>Connect Wallet</p>
-                <p style={{ fontSize: 12, color: '#848E9C' }}>Connect your wallet to view open positions.</p>
+                <p className="text-[13px] font-semibold text-text">Connect Wallet</p>
+                <p className="text-[12px] text-muted">Connect your wallet to view open positions.</p>
               </div>
             )}
           </div>
 
           {/* Repay with collateral note */}
-          <div className="info-box info-yellow" style={{ borderRadius: 8 }}>
-            <p style={{ fontWeight: 600, color: '#F0B90B', marginBottom: 4 }}>Repay With Collateral</p>
+          <div className="info-box info-yellow rounded-lg">
+            <p className="font-semibold text-yellow mb-1">Repay With Collateral</p>
             <p>
               You can repay loans by swapping your collateral token directly via PancakeSwap V2.
-              Use the <code style={{ background: '#2B3139', padding: '1px 4px', borderRadius: 3, fontSize: 11 }}>repayWithCollateral</code> flow on your profile page.
+              Use the <code className="bg-border p-[1px_4px] rounded text-[11px]">repayWithCollateral</code> flow on your profile page.
             </p>
           </div>
 

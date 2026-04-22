@@ -17,11 +17,11 @@ export default async function RootLayout({
   const initialState = cookieToInitialState(config, (await headers()).get("cookie"));
 
   return (
-    <html lang="en" style={{ height: '100%' }}>
-      <body style={{ minHeight: '100%', display: 'flex', background: '#0B0E11' }}>
+    <html lang="en" className="h-full">
+      <body className="min-h-full flex bg-bg font-inter text-text">
         <Providers initialState={initialState}>
           <Nav />
-          <div style={{ marginLeft: 220, flex: 1, minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+          <div className="ml-[220px] flex-1 min-h-screen flex flex-col">
             {children}
           </div>
         </Providers>

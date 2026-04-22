@@ -53,19 +53,19 @@ export default function ProfilePage() {
 
   if (!isConnected) {
     return (
-      <div style={{ padding: '32px 36px', maxWidth: 1100, width: '100%' }}>
-        <div style={{ marginBottom: 28 }}>
-          <h1 style={{ fontSize: 22, fontWeight: 700, color: '#EAECEF' }}>Profile</h1>
+      <div className="p-8 max-w-[1100px] w-full">
+        <div className="mb-7">
+          <h1 className="text-[22px] font-bold text-text">Profile</h1>
         </div>
         <div className="card">
-          <div className="empty-state" style={{ padding: '80px 24px' }}>
+          <div className="empty-state p-[80px_24px]">
             <div className="icon-ring">
-              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="#848E9C" strokeWidth={1.5}>
+              <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                 <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
               </svg>
             </div>
-            <p style={{ fontSize: 15, fontWeight: 600, color: '#EAECEF' }}>Connect your wallet</p>
-            <p style={{ fontSize: 13, color: '#848E9C' }}>Connect from the sidebar to view your profile.</p>
+            <p className="text-[15px] font-semibold text-text">Connect your wallet</p>
+            <p className="text-[13px] text-muted">Connect from the sidebar to view your profile.</p>
           </div>
         </div>
       </div>
@@ -73,32 +73,27 @@ export default function ProfilePage() {
   }
 
   return (
-    <div style={{ padding: '32px 36px', maxWidth: 1100, width: '100%' }}>
+    <div className="p-8 max-w-[1100px] w-full">
 
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#EAECEF' }}>Profile</h1>
-        <p style={{ fontSize: 13, color: '#848E9C', marginTop: 4 }}>
+      <div className="mb-7">
+        <h1 className="text-[22px] font-bold text-text">Profile</h1>
+        <p className="text-[13px] text-muted mt-1">
           Wallet overview and position management
         </p>
       </div>
 
       {/* Wallet address bar */}
-      <div
-        style={{
-          display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24,
-          padding: '12px 18px', background: '#1E2329', border: '1px solid #2B3139', borderRadius: 8,
-        }}
-      >
-        <span style={{ width: 10, height: 10, borderRadius: '50%', background: '#0ECB81', flexShrink: 0 }} />
+      <div className="flex items-center gap-3 mb-6 p-[12px_18px] bg-surface border border-border rounded-lg shadow-sm">
+        <span className="w-2.5 h-2.5 rounded-full bg-green shrink-0 animate-pulse" />
         <div>
-          <p style={{ fontSize: 10, color: '#848E9C', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em' }}>Connected Wallet</p>
-          <p className="mono" style={{ fontSize: 13, color: '#EAECEF' }}>{address}</p>
+          <p className="text-[10px] text-muted font-bold uppercase tracking-widest">Connected Wallet</p>
+          <p className="mono text-[13px] text-text">{address}</p>
         </div>
-        <span className="badge badge-yellow" style={{ marginLeft: 'auto' }}>BNB Testnet</span>
+        <span className="badge badge-yellow ml-auto">BNB Testnet</span>
       </div>
 
       {/* Token balances */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 24 }}>
+      <div className="grid grid-cols-4 gap-3 mb-6">
         {[
           { label: 'USDC Balance',     value: fmt6(usdcBalance),    unit: 'USDC'   },
           { label: 'BRGN Balance',     value: fmt18(brgnBalance),   unit: 'BRGN'   },
@@ -107,40 +102,39 @@ export default function ProfilePage() {
         ].map(s => (
           <div key={s.label} className="stat-card">
             <div className="stat-label">{s.label}</div>
-            <div className="stat-value" style={{ fontSize: 18 }}>{s.value}</div>
+            <div className="stat-value text-[18px]">{s.value}</div>
             <div className="stat-sub">{s.unit}</div>
           </div>
         ))}
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+      <div className="grid grid-cols-2 gap-6">
 
         {/* ── Repay panel ── */}
-        <div className="card" style={{ padding: '22px 24px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+        <div className="card p-6 flex flex-col gap-[18px]">
           <p className="section-title">Manage Positions</p>
 
           <div>
-            <span className="label" style={{ display: 'block', marginBottom: 8 }}>Select Position Token</span>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <span className="label block mb-2">Select Position Token</span>
+            <div className="flex flex-col gap-1.5">
               {MEME_TOKENS.map((t) => {
                 const active = repayToken.symbol === t.symbol;
                 return (
                   <button
                     key={t.symbol}
                     onClick={() => setRepayToken(t)}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: 10,
-                      padding: '9px 12px', borderRadius: 6, cursor: 'pointer', border: 'none',
-                      background: active ? 'rgba(240,185,11,0.08)' : '#161A1E',
-                      borderLeft: `3px solid ${active ? '#F0B90B' : 'transparent'}`,
-                      outline: active ? '1px solid rgba(240,185,11,0.2)' : '1px solid #2B3139',
-                      transition: 'all 0.15s',
-                    }}
+                    className={`
+                      flex items-center gap-2.5 p-[9px_12px] rounded-lg cursor-pointer border-none transition-all duration-150 text-left w-full
+                      ${active 
+                        ? 'bg-yellow/10 border-l-[3px] border-yellow outline outline-1 outline-yellow/20' 
+                        : 'bg-surface-alt border-l-[3px] border-transparent outline outline-1 outline-border'
+                      }
+                    `}
                   >
-                    <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#2B3139', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 9, fontWeight: 800, color: active ? '#F0B90B' : '#848E9C' }}>
+                    <div className={`w-7 h-7 rounded-full bg-border flex items-center justify-center text-[9px] font-extrabold ${active ? 'text-yellow' : 'text-muted'}`}>
                       {t.symbol.slice(0, 2)}
                     </div>
-                    <span style={{ fontSize: 13, fontWeight: 600, color: active ? '#EAECEF' : '#848E9C' }}>{t.symbol}</span>
+                    <span className={`text-[13px] font-semibold ${active ? 'text-text' : 'text-muted'}`}>{t.symbol}</span>
                   </button>
                 );
               })}
@@ -148,72 +142,66 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <span className="label" style={{ display: 'block', marginBottom: 8 }}>Repay Amount (USDC)</span>
-            <div style={{ position: 'relative' }}>
+            <span className="label block mb-2">Repay Amount (USDC)</span>
+            <div className="relative">
               <input type="number" className="input" placeholder="0.00" value={repayAmount} onChange={e => setRepayAmount(e.target.value)} />
-              <span style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', fontSize: 13, fontWeight: 600, color: '#848E9C' }}>USDC</span>
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[13px] font-semibold text-muted">USDC</span>
             </div>
           </div>
 
-          {isSuccess && <div className="info-box info-green"><span style={{ color: '#0ECB81', fontWeight: 600 }}>Transaction confirmed!</span></div>}
+          {isSuccess && <div className="info-box info-green"><span className="text-green font-semibold">Transaction confirmed!</span></div>}
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <button className="btn btn-yellow" style={{ width: '100%', padding: '12px' }} disabled={isBusy || !repayAmount} onClick={handleRepay}>
+          <div className="flex flex-col gap-2">
+            <button className="btn btn-yellow w-full p-3 text-sm font-semibold" disabled={isBusy || !repayAmount} onClick={handleRepay}>
               {isBusy ? <><span className="spinner" />Processing…</> : 'Repay with USDC'}
             </button>
-            <button className="btn btn-ghost" style={{ width: '100%', padding: '12px' }} disabled={isBusy} onClick={handleRepayWithCollateral}>
+            <button className="btn btn-ghost w-full p-3 text-sm font-semibold" disabled={isBusy} onClick={handleRepayWithCollateral}>
               {isBusy ? <><span className="spinner" />Processing…</> : 'Repay with Collateral (Swap)'}
             </button>
           </div>
         </div>
 
         {/* ── BRGN rewards ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="flex flex-col gap-4">
 
-          <div className="card" style={{ padding: '22px 24px' }}>
-            <p className="section-title" style={{ marginBottom: 16 }}>BRGN Rewards</p>
-            <div
-              style={{
-                display: 'flex', justifyContent: 'space-between', alignItems: 'center',
-                padding: '16px', background: '#161A1E', border: '1px solid #2B3139', borderRadius: 6, marginBottom: 14,
-              }}
-            >
+          <div className="card p-[22px_24px]">
+            <p className="section-title mb-4">BRGN Rewards</p>
+            <div className="flex justify-between items-center p-4 bg-surface-alt border border-border rounded-lg mb-3.5">
               <div>
-                <p style={{ fontSize: 11, color: '#848E9C', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>Accrued BRGN</p>
-                <p className="mono" style={{ fontSize: 26, fontWeight: 700, color: '#F0B90B' }}>{fmt18(accruedBrgn)}</p>
+                <p className="text-[11px] text-muted uppercase tracking-wider mb-1">Accrued BRGN</p>
+                <p className="mono text-[26px] font-bold text-yellow">{fmt18(accruedBrgn)}</p>
               </div>
               <span className="badge badge-yellow">Claimable</span>
             </div>
             <button
-              className="btn btn-outline"
-              style={{ width: '100%', padding: '12px' }}
+              className="btn btn-outline w-full p-3 font-semibold"
               disabled={isBusy || fmt18(accruedBrgn) === '0.00'}
               onClick={handleClaimBrgn}
             >
-              {isBusy ? <><span className="spinner" style={{ borderTopColor: '#F0B90B' }} />Processing…</> : 'Claim BRGN Rewards'}
+              {isBusy ? <><span className="spinner !border-t-yellow" />Processing…</> : 'Claim BRGN Rewards'}
             </button>
           </div>
 
-          <div className="card" style={{ padding: '22px 24px' }}>
-            <p className="section-title" style={{ marginBottom: 14 }}>Account Summary</p>
+          <div className="card p-[22px_24px]">
+            <p className="section-title mb-3.5">Account Summary</p>
             {[
               ['Lender Shares',  userShares  ? formatUnits(userShares  as bigint, 6) : '0', 'SHARES'],
               ['USDC Balance',   fmt6(usdcBalance), 'USDC'],
               ['BRGN Balance',   fmt18(brgnBalance), 'BRGN'],
               ['Accrued BRGN',   fmt18(accruedBrgn), 'BRGN'],
             ].map(([label, value, unit]) => (
-              <div key={label as string} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
-                <span style={{ fontSize: 12, color: '#848E9C' }}>{label}</span>
-                <div style={{ textAlign: 'right' }}>
-                  <span className="mono" style={{ fontSize: 13, fontWeight: 600, color: '#EAECEF' }}>{value as string}</span>
-                  <span style={{ fontSize: 11, color: '#474D57', marginLeft: 4 }}>{unit}</span>
+              <div key={label as string} className="flex justify-between items-center mb-3 last:mb-0">
+                <span className="text-[12px] text-muted">{label}</span>
+                <div className="text-right">
+                  <span className="mono text-[13px] font-semibold text-text">{value as string}</span>
+                  <span className="text-[11px] text-dim ml-1">{unit}</span>
                 </div>
               </div>
             ))}
           </div>
 
-          <div className="info-box info-yellow" style={{ borderRadius: 8 }}>
-            <p style={{ fontWeight: 600, color: '#F0B90B', marginBottom: 4 }}>BRGN Governance Token</p>
+          <div className="info-box info-yellow rounded-lg">
+            <p className="font-semibold text-yellow mb-1">BRGN Governance Token</p>
             <p>BRGN tokens earned as lending rewards give you governance rights and allow you to register as a Guardian agent with 1,000,000 BRGN.</p>
           </div>
         </div>

@@ -73,52 +73,49 @@ export default function LendPage() {
   };
 
   return (
-    <div style={{ padding: '32px 36px', maxWidth: 1100, width: '100%' }}>
+    <div className="p-8 max-w-[1100px] w-full">
 
       {/* Header */}
-      <div style={{ marginBottom: 28 }}>
-        <h1 style={{ fontSize: 22, fontWeight: 700, color: '#EAECEF' }}>Lend</h1>
-        <p style={{ fontSize: 13, color: '#848E9C', marginTop: 4 }}>
+      <div className="mb-7">
+        <h1 className="text-[22px] font-bold text-text">Lend</h1>
+        <p className="text-[13px] text-muted mt-1">
           Deposit USDC to earn yield and BRGN emissions
         </p>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '420px 1fr', gap: 24 }}>
+      <div className="grid grid-cols-[420px_1fr] gap-6">
 
         {/* ── Action Panel ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="flex flex-col gap-4">
 
           {/* Action tabs */}
-          <div style={{ display: 'flex', gap: 2, background: '#161A1E', border: '1px solid #2B3139', borderRadius: 8, padding: 4 }}>
+          <div className="flex gap-0.5 bg-surface-alt border border-border rounded-lg p-1">
             {(['deposit', 'withdraw'] as const).map((a) => (
               <button
                 key={a}
                 onClick={() => setActiveAction(a)}
-                style={{
-                  flex: 1, padding: '9px', border: 'none', borderRadius: 6, cursor: 'pointer',
-                  fontSize: 13, fontWeight: 600, textTransform: 'capitalize',
-                  background: activeAction === a ? '#F0B90B' : 'transparent',
-                  color: activeAction === a ? '#0B0E11' : '#848E9C',
-                  transition: 'all 0.15s',
-                }}
+                className={`
+                  flex-1 p-[9px] border-none rounded-md cursor-pointer text-[13px] font-semibold capitalize transition-all duration-150
+                  ${activeAction === a ? 'bg-yellow text-bg' : 'bg-transparent text-muted hover:text-text'}
+                `}
               >
                 {a.charAt(0).toUpperCase() + a.slice(1)}
               </button>
             ))}
           </div>
 
-          <div className="card" style={{ padding: '24px' }}>
+          <div className="card p-6">
 
             {activeAction === 'deposit' ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+              <div className="flex flex-col gap-[18px]">
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <div className="flex justify-between mb-2">
                     <span className="label">Amount (USDC)</span>
-                    <span style={{ fontSize: 12, color: '#848E9C' }}>
-                      Balance: <span className="mono" style={{ color: '#EAECEF' }}>{usdcBal}</span>
+                    <span className="text-[12px] text-muted">
+                      Balance: <span className="mono text-text">{usdcBal}</span>
                     </span>
                   </div>
-                  <div style={{ position: 'relative' }}>
+                  <div className="relative">
                     <input
                       type="number"
                       className="input"
@@ -126,36 +123,35 @@ export default function LendPage() {
                       value={depositAmount}
                       onChange={e => setDepositAmount(e.target.value)}
                     />
-                    <div style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                       <button
                         onClick={() => setDepositAmount(usdcBal)}
-                        style={{ fontSize: 10, fontWeight: 700, color: '#F0B90B', background: 'rgba(240,185,11,0.1)', border: '1px solid rgba(240,185,11,0.25)', borderRadius: 4, padding: '2px 6px', cursor: 'pointer' }}
+                        className="text-[10px] font-bold text-yellow bg-yellow/10 border border-yellow/25 rounded p-[2px_6px] cursor-pointer hover:bg-yellow/20 transition-colors"
                       >
                         MAX
                       </button>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: '#848E9C' }}>USDC</span>
+                      <span className="text-[13px] font-semibold text-muted">USDC</span>
                     </div>
                   </div>
                 </div>
 
                 {/* APR info */}
                 <div className="info-box info-green">
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                    <span style={{ color: '#0ECB81', fontWeight: 600 }}>Estimated APR</span>
-                    <span className="mono" style={{ color: '#0ECB81', fontWeight: 700 }}>{apr}</span>
+                  <div className="flex justify-between mb-1">
+                    <span className="text-green font-semibold">Estimated APR</span>
+                    <span className="mono text-green font-bold">{apr}</span>
                   </div>
                   <p>Fixed interest rate paid by borrowers. You also receive BRGN governance token emissions.</p>
                 </div>
 
                 {isSuccess && (
                   <div className="info-box info-green">
-                    <span style={{ color: '#0ECB81', fontWeight: 600 }}>Transaction confirmed!</span>
+                    <span className="text-green font-semibold">Transaction confirmed!</span>
                   </div>
                 )}
 
                 <button
-                  className="btn btn-green"
-                  style={{ width: '100%', padding: '13px', fontSize: 14 }}
+                  className="btn btn-green w-full p-[13px] text-sm"
                   disabled={isBusy || !isConnected || !depositAmount}
                   onClick={handleDeposit}
                 >
@@ -163,21 +159,21 @@ export default function LendPage() {
                 </button>
 
                 {!isConnected && (
-                  <p style={{ fontSize: 12, color: '#848E9C', textAlign: 'center' }}>
+                  <p className="text-[12px] text-muted text-center">
                     Connect wallet to deposit
                   </p>
                 )}
               </div>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+              <div className="flex flex-col gap-[18px]">
                 <div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
+                  <div className="flex justify-between mb-2">
                     <span className="label">Shares to Withdraw</span>
-                    <span style={{ fontSize: 12, color: '#848E9C' }}>
-                      Shares: <span className="mono" style={{ color: '#EAECEF' }}>{sharesBal}</span>
+                    <span className="text-[12px] text-muted">
+                      Shares: <span className="mono text-text">{sharesBal}</span>
                     </span>
                   </div>
-                  <div style={{ position: 'relative' }}>
+                  <div className="relative">
                     <input
                       type="number"
                       className="input"
@@ -185,14 +181,14 @@ export default function LendPage() {
                       value={withdrawShares}
                       onChange={e => setWithdrawShares(e.target.value)}
                     />
-                    <div style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', display: 'flex', alignItems: 'center', gap: 6 }}>
+                    <div className="absolute right-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5">
                       <button
                         onClick={() => setWithdrawShares(sharesBal)}
-                        style={{ fontSize: 10, fontWeight: 700, color: '#F0B90B', background: 'rgba(240,185,11,0.1)', border: '1px solid rgba(240,185,11,0.25)', borderRadius: 4, padding: '2px 6px', cursor: 'pointer' }}
+                        className="text-[10px] font-bold text-yellow bg-yellow/10 border border-yellow/25 rounded p-[2px_6px] cursor-pointer hover:bg-yellow/20"
                       >
                         MAX
                       </button>
-                      <span style={{ fontSize: 13, fontWeight: 600, color: '#848E9C' }}>SHARES</span>
+                      <span className="text-[13px] font-semibold text-muted">SHARES</span>
                     </div>
                   </div>
                 </div>
@@ -202,8 +198,7 @@ export default function LendPage() {
                 </div>
 
                 <button
-                  className="btn btn-yellow"
-                  style={{ width: '100%', padding: '13px', fontSize: 14 }}
+                  className="btn btn-yellow w-full p-[13px] text-sm"
                   disabled={isBusy || !isConnected || !withdrawShares}
                   onClick={handleWithdraw}
                 >
@@ -214,31 +209,30 @@ export default function LendPage() {
           </div>
 
           {/* BRGN rewards card */}
-          <div className="card" style={{ padding: '20px 24px' }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
+          <div className="card p-[20px_24px]">
+            <div className="flex justify-between items-start mb-3.5">
               <div>
-                <p className="label" style={{ marginBottom: 4 }}>Accrued BRGN Rewards</p>
-                <p className="mono" style={{ fontSize: 22, fontWeight: 700, color: '#F0B90B' }}>{accrued}</p>
-                <p style={{ fontSize: 11, color: '#848E9C', marginTop: 2 }}>BRGN tokens</p>
+                <p className="label mb-1">Accrued BRGN Rewards</p>
+                <p className="mono text-[22px] font-bold text-yellow">{accrued}</p>
+                <p className="text-[11px] text-muted mt-0.5">BRGN tokens</p>
               </div>
               <span className="badge badge-yellow">Claimable</span>
             </div>
             <button
-              className="btn btn-outline"
-              style={{ width: '100%', padding: '10px' }}
+              className="btn btn-outline w-full p-2.5"
               disabled={isBusy || !isConnected || accrued === '0.00'}
               onClick={handleClaimBrgn}
             >
-              {isBusy ? <><span className="spinner" style={{ borderTopColor: '#F0B90B' }} />Processing…</> : 'Claim BRGN Rewards'}
+              {isBusy ? <><span className="spinner !border-t-yellow" />Processing…</> : 'Claim BRGN Rewards'}
             </button>
           </div>
         </div>
 
         {/* ── Right panel: position + stats ── */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+        <div className="flex flex-col gap-4">
 
           {/* Position summary */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 12 }}>
+          <div className="grid grid-cols-3 gap-3">
             {[
               { label: 'Your Position',   value: `$${positionValue}`, sub: 'USDC equivalent'  },
               { label: 'Your Shares',     value: sharesBal,           sub: 'Lender shares'    },
@@ -246,36 +240,29 @@ export default function LendPage() {
             ].map(s => (
               <div key={s.label} className="stat-card">
                 <div className="stat-label">{s.label}</div>
-                <div className="stat-value" style={{ fontSize: 18 }}>{s.value}</div>
+                <div className="stat-value text-[18px]">{s.value}</div>
                 <div className="stat-sub">{s.sub}</div>
               </div>
             ))}
           </div>
 
           {/* Lend explainer */}
-          <div className="card" style={{ padding: '22px 24px' }}>
-            <p className="section-title" style={{ marginBottom: 16 }}>How Lending Works</p>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+          <div className="card p-[22px_24px]">
+            <p className="section-title mb-4">How Lending Works</p>
+            <div className="flex flex-col gap-3.5">
               {[
                 { step: '01', title: 'Deposit USDC',    desc: 'Your USDC is pooled and made available for borrowers to borrow against their meme token collateral.' },
                 { step: '02', title: 'Earn Interest',   desc: 'Borrowers pay a fixed 5% APR. Interest accrues continuously and is distributed to lenders pro-rata.' },
                 { step: '03', title: 'Earn BRGN',       desc: 'Lenders earn BRGN governance tokens as additional yield. Claim anytime from the rewards card.' },
                 { step: '04', title: 'Withdraw Anytime', desc: 'Redeem your lender shares for USDC at the current share price. No lockup.' },
               ].map(({ step, title, desc }) => (
-                <div key={step} style={{ display: 'flex', gap: 14 }}>
-                  <span
-                    style={{
-                      width: 26, height: 26, borderRadius: 5,
-                      background: '#2B3139', border: '1px solid #474D57',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      fontSize: 10, fontWeight: 700, color: '#848E9C', flexShrink: 0,
-                    }}
-                  >
+                <div key={step} className="flex gap-3.5">
+                  <span className="w-[26px] h-[26px] rounded-[5px] bg-border border border-dim flex items-center justify-center text-[10px] font-bold text-muted shrink-0">
                     {step}
                   </span>
                   <div>
-                    <p style={{ fontSize: 13, fontWeight: 600, color: '#EAECEF', marginBottom: 2 }}>{title}</p>
-                    <p style={{ fontSize: 12, color: '#848E9C', lineHeight: 1.5 }}>{desc}</p>
+                    <p className="text-[13px] font-semibold text-text mb-0.5">{title}</p>
+                    <p className="text-[12px] text-muted leading-relaxed">{desc}</p>
                   </div>
                 </div>
               ))}
@@ -283,8 +270,8 @@ export default function LendPage() {
           </div>
 
           {/* Risk note */}
-          <div className="info-box info-yellow" style={{ borderRadius: 8 }}>
-            <p style={{ fontWeight: 600, color: '#F0B90B', marginBottom: 4 }}>Risk Disclosure</p>
+          <div className="info-box info-yellow rounded-lg">
+            <p className="font-semibold text-yellow mb-1">Risk Disclosure</p>
             <p>
               Lending on Brgent involves smart contract risk. Positions are protected by autonomous Guardian agents
               that liquidate under-collateralised borrowers before bad debt can accrue.

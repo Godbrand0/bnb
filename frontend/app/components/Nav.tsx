@@ -63,67 +63,32 @@ export default function Nav() {
     href === '/' ? pathname === '/' : pathname.startsWith(href);
 
   return (
-    <aside
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        width: 220,
-        height: '100vh',
-        background: '#161A1E',
-        borderRight: '1px solid #2B3139',
-        display: 'flex',
-        flexDirection: 'column',
-        zIndex: 100,
-      }}
-    >
+    <aside className="fixed top-0 left-0 w-[220px] h-screen bg-surface-alt border-r border-border flex flex-col z-[100]">
       {/* Brand */}
-      <div style={{ padding: '20px 20px 16px', borderBottom: '1px solid #2B3139' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <div
-            style={{
-              width: 32, height: 32, borderRadius: 6,
-              background: '#F0B90B',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              flexShrink: 0,
-            }}
-          >
-            <span style={{ fontWeight: 900, fontSize: 14, color: '#0B0E11' }}>B</span>
+      <div className="p-[20px_20px_16px] border-b border-border">
+        <div className="flex items-center gap-[10px]">
+          <div className="w-[32px] h-[32px] rounded-md bg-yellow flex items-center justify-center shrink-0">
+            <span className="font-black text-sm text-bg">B</span>
           </div>
           <div>
-            <p style={{ fontWeight: 700, fontSize: 15, color: '#EAECEF', lineHeight: 1.2 }}>Brgent</p>
-            <p style={{ fontSize: 10, color: '#F0B90B', fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase' }}>
+            <p className="font-bold text-[15px] text-text leading-[1.2]">Brgent</p>
+            <p className="text-[10px] text-yellow font-semibold tracking-wider uppercase">
               Agentic Protocol
             </p>
           </div>
         </div>
 
         {/* Network pill */}
-        <div
-          style={{
-            marginTop: 12,
-            display: 'flex', alignItems: 'center', gap: 6,
-            padding: '5px 10px',
-            background: 'rgba(240,185,11,0.06)',
-            border: '1px solid rgba(240,185,11,0.2)',
-            borderRadius: 6,
-          }}
-        >
+        <div className="mt-3 flex items-center gap-1.5 p-[5px_10px] bg-yellow/5 border border-yellow/20 rounded-md">
           <BNBIcon />
-          <span style={{ fontSize: 11, fontWeight: 600, color: '#848E9C' }}>BNB Testnet</span>
-          <span
-            className="pulse-dot"
-            style={{
-              width: 6, height: 6, borderRadius: '50%',
-              background: '#0ECB81', marginLeft: 'auto',
-            }}
-          />
+          <span className="text-[11px] font-semibold text-muted">BNB Testnet</span>
+          <span className="pulse-dot w-1.5 h-1.5 rounded-full bg-green ml-auto" />
         </div>
       </div>
 
       {/* Nav links */}
-      <nav style={{ padding: '12px 10px', flex: 1 }}>
-        <p style={{ fontSize: 10, fontWeight: 600, color: '#474D57', textTransform: 'uppercase', letterSpacing: '0.08em', padding: '4px 10px 8px' }}>
+      <nav className="p-3 flex-1">
+        <p className="text-[10px] font-semibold text-dim uppercase tracking-widest p-[4px_10px_8px]">
           Menu
         </p>
         {navLinks.map(({ href, label, key }) => {
@@ -132,35 +97,15 @@ export default function Nav() {
             <Link
               key={key}
               href={href}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                padding: '9px 10px',
-                borderRadius: 6,
-                marginBottom: 2,
-                fontSize: 13,
-                fontWeight: active ? 600 : 500,
-                color: active ? '#F0B90B' : '#848E9C',
-                background: active ? 'rgba(240,185,11,0.08)' : 'transparent',
-                borderLeft: active ? '2px solid #F0B90B' : '2px solid transparent',
-                textDecoration: 'none',
-                transition: 'all 0.15s',
-              }}
-              onMouseEnter={e => {
-                if (!active) {
-                  (e.currentTarget as HTMLElement).style.color = '#EAECEF';
-                  (e.currentTarget as HTMLElement).style.background = 'rgba(255,255,255,0.04)';
+              className={`
+                flex items-center gap-2.5 p-[9px_10px] rounded-md mb-0.5 text-[13px] transition-all duration-150 no-underline
+                ${active 
+                  ? 'font-semibold text-yellow bg-yellow/10 border-l-2 border-yellow' 
+                  : 'font-medium text-muted hover:text-text hover:bg-white/5 border-l-2 border-transparent'
                 }
-              }}
-              onMouseLeave={e => {
-                if (!active) {
-                  (e.currentTarget as HTMLElement).style.color = '#848E9C';
-                  (e.currentTarget as HTMLElement).style.background = 'transparent';
-                }
-              }}
+              `}
             >
-              <span style={{ opacity: active ? 1 : 0.7 }}>{icons[key]}</span>
+              <span className={active ? 'opacity-100' : 'opacity-70'}>{icons[key]}</span>
               {label}
             </Link>
           );
@@ -168,30 +113,20 @@ export default function Nav() {
       </nav>
 
       {/* Wallet section */}
-      <div style={{ padding: '14px 10px', borderTop: '1px solid #2B3139' }}>
+      <div className="p-[14px_10px] border-t border-border">
         {isConnected && address ? (
           <div>
-            <div
-              style={{
-                display: 'flex', alignItems: 'center', gap: 8,
-                padding: '9px 10px',
-                background: '#1E2329',
-                border: '1px solid #2B3139',
-                borderRadius: 6,
-                marginBottom: 8,
-              }}
-            >
-              <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#0ECB81', flexShrink: 0 }} />
-              <div style={{ minWidth: 0 }}>
-                <p style={{ fontSize: 10, color: '#848E9C', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Connected</p>
-                <p className="mono" style={{ fontSize: 11, color: '#EAECEF', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+            <div className="flex items-center gap-2 p-[9px_10px] bg-surface border border-border rounded-md mb-2">
+              <span className="w-2 h-2 rounded-full bg-green shrink-0" />
+              <div className="min-w-0">
+                <p className="text-[10px] text-muted font-semibold uppercase tracking-tight">Connected</p>
+                <p className="mono text-[11px] text-text overflow-hidden text-ellipsis whitespace-nowrap">
                   {address.slice(0, 8)}…{address.slice(-6)}
                 </p>
               </div>
             </div>
             <button
-              className="btn btn-ghost"
-              style={{ width: '100%', padding: '8px', fontSize: 12 }}
+              className="btn btn-ghost w-full p-2 text-[12px]"
               onClick={() => disconnect()}
             >
               Disconnect
@@ -199,14 +134,13 @@ export default function Nav() {
           </div>
         ) : (
           <button
-            className="btn btn-yellow"
-            style={{ width: '100%', padding: '10px' }}
+            className="btn btn-yellow w-full p-2.5"
             onClick={() => connect({ connector: injected() })}
           >
             Connect Wallet
           </button>
         )}
-        <p style={{ fontSize: 10, color: '#474D57', textAlign: 'center', marginTop: 10 }}>
+        <p className="text-[10px] text-dim text-center mt-2.5">
           BNB Chain Hackathon · v1.0
         </p>
       </div>
